@@ -1,15 +1,45 @@
 package BolaoDoArmenio.usuarios;
 
-import BolaoDoArmenio.DBConfig;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import BolaoDoArmenio.DBConfig;
 
 public class UsuarioDAO {
 	public Usuario obter(int id) {
 			DBConfig.init();
-			ArrayList<HashMap<String,Object>> uDb = DBConfig.runSql("SELECT * FROM usuarios WHERE id = "+id+";") ;
+			ArrayList<HashMap<String,Object>> uDb = DBConfig.runSql("SELECT *, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as c_date, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as e_date FROM usuarios WHERE id = "+id+";") ;
 			DBConfig.end();
-			return uDb.toArray().length == 0 ? null : new Usuario((String) uDb.get(0).get("email"),(String) uDb.get(0).get("senha"));
+			
+			if(uDb.toArray().length == 0)
+			{
+				return null ;
+			}
+			
+			HashMap<String,Object> linha = uDb.get(0);
+			Usuario usuario = new Usuario();
+			SimpleDateFormat format_date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			
+			usuario.setId((long)linha.get("id"));
+			
+			try {
+				usuario.setCreationDate(format_date.parse((String) linha.get("c_date")));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			
+			try {
+				usuario.setEditDate(format_date.parse((String) linha.get("e_date")));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			
+			usuario.setEmail((String)linha.get("email"));
+			usuario.setSenha((String)linha.get("senha"));
+			
+			return usuario ;
 	}
 	
 	public void inserir(Usuario usr) {

@@ -20,6 +20,18 @@ public class Usuario {
 		this.id = id;
 		carregar();
 	}	
+
+	public int getId () {
+		return this.id ;
+	}
+
+	public void setId (int id) {
+		this.id = id;
+	}
+
+	public void setId (long id) {
+		this.id = (int) id;
+	}
 	
 	public String getEmail () {
 		return this.email ;
@@ -36,6 +48,22 @@ public class Usuario {
 	public void setSenha (String senha) {
 		this.senha = senha;
 	}
+
+	public void setCreationDate (Date creation_date) {
+		this.creation_date = (Date) creation_date.clone();
+	}
+	
+	public void setEditDate (Date edit_date) {
+		this.edit_date = (Date) edit_date.clone();
+	}
+	
+	public Date getEditDate () {
+		return this.edit_date ;
+	}
+	
+	public Date getCreationDate () {
+		return this.creation_date ;
+	}
 	
 	public void carregar() {
 		if (this.id != null) {
@@ -46,7 +74,8 @@ public class Usuario {
 				this.id = u.id;
 				this.email = u.email;
 				this.senha = u.senha;
-				//this.creation_date = new Date(u.creation_date.toString());
+				this.creation_date = (Date) u.creation_date.clone();
+				this.edit_date = (Date) u.edit_date.clone();
 			}
 		}
 	}
