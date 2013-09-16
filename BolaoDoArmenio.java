@@ -8,5 +8,6 @@ public class BolaoDoArmenio {
 		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		usuario = usuarioDAO.obter(1);
 		System.out.println(usuario.getEmail());
+		System.out.println(usuario.getSenha());
 	}
 }
