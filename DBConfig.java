@@ -8,16 +8,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class DBConfig {
+public final class DBConfig {
 	private static final String DB_USER = "postgres" ;
 	private static final String DB_PASS = "poipoi09" ;
 	private static final String DB_ADDR = "162.243.5.172" ;
 	private static final String DB_NAME = "bolaodoarmenio" ;
 	private static final int DB_PORT = 5432 ;
-	protected Connection conn ;
-	protected Statement stm ;
+	private static Connection conn ;
+	private static Statement stm ;
 	
-	protected DBConfig(){
+	private DBConfig() {
+	}
+	
+	public static void init() {
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e) {
@@ -35,12 +38,44 @@ public abstract class DBConfig {
 		try {
 			stm = conn.createStatement();
 		} catch (SQLException e) {
+			conn = null ;
 			e.printStackTrace();
 			System.exit(0);
 		}		
 	}
 	
-	protected ArrayList<HashMap<String,Object>> runSql (String Sql){
+	public static void end() {
+		
+		if (conn == null)
+		{
+			return ;
+		}// IF
+		
+		try {
+			stm.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}		
+		
+		stm = null ;
+		
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
+		conn = null ;
+	}
+	
+	public static ArrayList<HashMap<String,Object>> runSql (String Sql){
+		if (conn == null)
+		{
+			return null;
+		}
+		
 		ResultSet rs = null;
 		try {
 			rs = stm.executeQuery(Sql);

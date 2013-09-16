@@ -21,37 +21,37 @@ public class Usuario {
 		carregar();
 	}	
 	
-	String getEmail () {
+	public String getEmail () {
 		return this.email ;
 	}
 	
-	String getSenha() {
+	public String getSenha() {
 		return this.senha ;
 	}
 	
-	void setEmail (String email) {
+	public void setEmail (String email) {
 		this.email = email;
 	}
 	
-	void setSenha (String senha) {
+	public void setSenha (String senha) {
 		this.senha = senha;
 	}
 	
-	void carregar() {
+	public void carregar() {
 		if (this.id != null) {
 			UsuarioDAO uDAO = new UsuarioDAO();
-			Usuario u = uDAO.obter(this);
+			Usuario u = uDAO.obter(this.id);
 						
 			if (u != null) {
 				this.id = u.id;
 				this.email = u.email;
 				this.senha = u.senha;
-				this.creation_date = new Date(u.creation_date.toString());
+				//this.creation_date = new Date(u.creation_date.toString());
 			}
 		}
 	}
 	
-	void salvar () {
+	public void salvar () {
 		if ( this.id != null && this.email != null && this.senha != null )
 		{
 			UsuarioDAO uDAO = new UsuarioDAO();
