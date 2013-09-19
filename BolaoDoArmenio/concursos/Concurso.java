@@ -1,4 +1,4 @@
-package BolaoDoArmenio.jogos;
+package BolaoDoArmenio.concursos;
 
 import java.util.Date;
 import java.util.List;
