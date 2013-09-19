@@ -12,7 +12,7 @@ class ConcursoDAO {
 		}
 		String insert_cmd = "INSERT INTO concurso (id, valor_sorteado, codigo_identificador, data_sorteio, creation_date, n1, n2, n3, n4, n5, n6 )"
 				+ "VALUES( nextval('seq_concurso'), %f, %d, $$%s$$, now(), %d, %d, %d, %d, %d, %d ) ;" ,
-				query = "TRUNCATE concurso CASCADE;"; /* Linha temporária para manter o banco um pouco menos cheio, deve ser uma String vazia */
+				query = "";
 		for (int i = 0; i < concursos.size(); i++) {
 			Concurso conc = concursos.get(i) ;
 			List<Integer> numeros = conc.getNumerosSorteio() ;
@@ -29,8 +29,10 @@ class ConcursoDAO {
 					numeros.get(5));
 		}
 
-		DBConfig.init();
 		DBConfig.runSql(query);
-		DBConfig.end();
+	}
+	
+	long contarRegistros() {
+		return (Long) DBConfig.runSql("SELECT count(1) FROM concurso;").get(0).get("count");
 	}
 }

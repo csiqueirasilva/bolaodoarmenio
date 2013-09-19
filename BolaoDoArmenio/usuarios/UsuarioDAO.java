@@ -8,12 +8,10 @@ import java.util.HashMap;
 import BolaoDoArmenio.DBConfig;
 
 class UsuarioDAO {
-	public Usuario obter(int id) {
-		DBConfig.init();
+	Usuario obter(int id) {
 		ArrayList<HashMap<String, Object>> uDb = DBConfig
 				.runSql("SELECT *, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as c_date, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as e_date FROM usuario WHERE id = "
 						+ id + ";");
-		DBConfig.end();
 
 		if (uDb.toArray().length == 0) {
 			return null;
@@ -24,54 +22,49 @@ class UsuarioDAO {
 		SimpleDateFormat format_date = new SimpleDateFormat(
 				"yyyy-MM-dd hh:mm:ss");
 
-		usuario.setId((long) linha.get("id"));
+		usuario.id = (int) linha.get("id");
 
 		try {
-			usuario.setCreationDate(format_date.parse((String) linha
-					.get("c_date")));
+			usuario.creation_date = format_date.parse((String) linha.get("c_date"));
 		} catch (ParseException e) {
 			e.printStackTrace();
+			usuario.creation_date = null;
 		}
 
 		try {
-			usuario.setEditDate(format_date.parse((String) linha.get("e_date")));
+			usuario.edit_date = format_date.parse((String) linha.get("e_date"));
 		} catch (ParseException e) {
 			e.printStackTrace();
+			usuario.edit_date = null;
 		}
 
-		usuario.setEmail((String) linha.get("email"));
-		usuario.setSenha((String) linha.get("senha"));
+		usuario.email = (String) linha.get("email");
+		usuario.senha = (String) linha.get("senha");
 
 		return usuario;
 	}
 
-	public void inserir(Usuario usr) {
+	void inserir(Usuario usr) {
 		if (usr == null) {
 			return;
 		}
-		DBConfig.init();
 		DBConfig.runSql("INSERT INTO usuarios (id, email, senha) VALUES (nextval('seq_usuarios'),$$"
 				+ usr.email + "$$,$$" + usr.senha + "$$,creation_date=now());");
-		DBConfig.end();
 	}
 
-	public void remover(Usuario usr) {
+	void remover(Usuario usr) {
 		if (usr == null) {
 			return;
 		}
-		DBConfig.init();
 		DBConfig.runSql("DELETE FROM usuarios WHERE id = " + usr.id + ";");
-		DBConfig.end();
 	}
 
-	public void alterar(Usuario usr) {
+	void alterar(Usuario usr) {
 		if (usr == null) {
 			return;
 		}
-		DBConfig.init();
 		DBConfig.runSql("UPDATE usuarios SET email = $$" + usr.email
 				+ "$$, senha = $$" + usr.senha + "$$ WHERE id = " + usr.id
 				+ ";");
-		DBConfig.end();
 	}
 }
