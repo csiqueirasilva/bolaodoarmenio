@@ -1,16 +1,16 @@
-package BolaoDoArmenio.usuarios;
+package br.edu.infnet.usuarios;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import BolaoDoArmenio.DBConfig;
+import br.edu.infnet.DBConfig;
 
 class UsuarioDAO {
 	Usuario obter(int id) {
 		ArrayList<HashMap<String, Object>> uDb = DBConfig
-				.runSql("SELECT *, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as c_date, to_char(creation_date, 'YYYY-MM-DD HH24:MI:SS') as e_date FROM usuario WHERE id = "
+				.runSql("SELECT *, date_format(creation_date, '%Y-%mm-%dd %H:%i:%s') as c_date, date_format(creation_date, '%Y-%mm-%dd %H:%i:%s') as e_date FROM usuario WHERE id = "
 						+ id + ";");
 
 		if (uDb.toArray().length == 0) {
@@ -48,8 +48,8 @@ class UsuarioDAO {
 		if (usr == null) {
 			return;
 		}
-		DBConfig.runSql("INSERT INTO usuarios (id, email, senha) VALUES (nextval('seq_usuarios'),$$"
-				+ usr.email + "$$,$$" + usr.senha + "$$,creation_date=now());");
+		DBConfig.runSql("INSERT INTO usuarios (id, email, senha) VALUES (nextval('seq_usuarios'),'"
+				+ usr.email + "','" + usr.senha + "',creation_date=now());");
 	}
 
 	void remover(Usuario usr) {
@@ -63,8 +63,8 @@ class UsuarioDAO {
 		if (usr == null) {
 			return;
 		}
-		DBConfig.runSql("UPDATE usuarios SET email = $$" + usr.email
-				+ "$$, senha = $$" + usr.senha + "$$ WHERE id = " + usr.id
+		DBConfig.runSql("UPDATE usuarios SET email = '" + usr.email
+				+ "', senha = '" + usr.senha + "' WHERE id = " + usr.id
 				+ ";");
 	}
 }

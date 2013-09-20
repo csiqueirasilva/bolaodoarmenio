@@ -1,4 +1,4 @@
-package BolaoDoArmenio.usuarios;
+package br.edu.infnet.usuarios;
 
 import java.util.Date;
 

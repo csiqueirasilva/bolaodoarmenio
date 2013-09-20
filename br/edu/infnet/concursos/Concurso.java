@@ -1,4 +1,4 @@
-package BolaoDoArmenio.concursos;
+package br.edu.infnet.concursos;
 
 import java.util.Date;
 import java.util.List;

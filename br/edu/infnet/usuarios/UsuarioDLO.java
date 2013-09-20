@@ -1,16 +1,16 @@
-package BolaoDoArmenio.usuarios;
+package br.edu.infnet.usuarios;
 
-class UsuarioDLO {
+public class UsuarioDLO {
 
-	public Usuario carregar(long id) {
+	public static Usuario carregar(long id) {
 		return carregar((int) id);
 	}
 
-	public Usuario carregar(int id) {
+	public static Usuario carregar(int id) {
 		return (new UsuarioDAO()).obter(id);
 	}
 
-	public void salvar(Usuario usr) {
+	public static void salvar(Usuario usr) {
 		if (usr.email != null && usr.senha != null) {
 			UsuarioDAO uDAO = new UsuarioDAO();
 			if (usr.id != null) {
