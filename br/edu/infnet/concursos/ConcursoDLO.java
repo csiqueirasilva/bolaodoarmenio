@@ -2,12 +2,9 @@ package br.edu.infnet.concursos;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +15,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import br.edu.infnet.exceptions.DLOException;
+
 public class ConcursoDLO {
 
-	private static File unzipListaResultados(File file, boolean deleteOnExit) {
+	private static File unzipListaResultados(File file, boolean deleteOnExit) throws DLOException {
 		File megaSenaFile = null;
 		try {
 			String tDir = System.getProperty("java.io.tmpdir");
@@ -45,14 +44,13 @@ public class ConcursoDLO {
 			os.close();
 			zis.close();
 			zip.close();
-		} catch (IOException e1) {
-			e1.printStackTrace(); // ERRO DE ARQUIVO
-			megaSenaFile = null;
+		} catch (Exception e) {
+			throw new DLOException(e);
 		}
 		return megaSenaFile;
 	}
 
-	private static File downloadListaResultados() {
+	private static File downloadListaResultados() throws DLOException {
 		File megaSenaFile = null;
 		try {
 			URL url = new URL("http://hawaii-ocean.dyndns.tv/D_megase.zip");
@@ -63,17 +61,13 @@ public class ConcursoDLO {
 
 			FileUtils.copyURLToFile(url, megaSenaFile);
 
-		} catch (MalformedURLException e2) {
-			e2.printStackTrace(); // ERRO URL
-			megaSenaFile = null;
-		} catch (IOException e1) {
-			e1.printStackTrace(); // ERRO DE ARQUIVO
-			megaSenaFile = null;
+		} catch (Exception e) {
+			throw new DLOException(e);
 		}
 		return megaSenaFile;
 	}
 
-	private static void parseHTMLMegaSena(File megaSenaFile) {
+	private static void parseHTMLMegaSena(File megaSenaFile) throws DLOException {
 		if (megaSenaFile != null) {
 
 			Document doc = null;
@@ -104,33 +98,29 @@ public class ConcursoDLO {
 				if (listaConcursos.size() > 0) {
 					c.carregarRegistros(listaConcursos);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			} catch (ParseException e) {
-				e.printStackTrace();
-				return;
+			} catch (Exception e) {
+				throw new DLOException(e);
 			}
 		}
 	}
 
-	static void listarNumerosMaisSorteados() {
+	static void listarNumerosMaisSorteados()  throws DLOException {
 	}
 
-	public static void carregarBaseDeConcursos(String nome_arquivo) {
+	public static void carregarBaseDeConcursos(String nome_arquivo) throws DLOException {
 		if (nome_arquivo != null) {
 			carregarBaseDeConcursos(new File(nome_arquivo));
 		}
 	}
 
-	public static void carregarBaseDeConcursos(File arquivoLocal) {
+	public static void carregarBaseDeConcursos(File arquivoLocal) throws DLOException {
 		if (arquivoLocal != null) {
 			File megaSenaFile = unzipListaResultados(arquivoLocal, false);
 			parseHTMLMegaSena(megaSenaFile);
 		}
 	}
 
-	public static void carregarBaseDeConcursos() {
+	public static void carregarBaseDeConcursos() throws DLOException {
 		File zipMegaSena = downloadListaResultados();
 		File megaSenaFile = unzipListaResultados(zipMegaSena, true);
 		parseHTMLMegaSena(megaSenaFile);
