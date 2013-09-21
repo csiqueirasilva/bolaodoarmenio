@@ -24,8 +24,7 @@ public class ConcursoDLO {
 		File megaSenaFile = null;
 		try {
 			String tDir = System.getProperty("java.io.tmpdir");
-			ZipFile zip;
-			zip = new ZipFile(file);
+			ZipFile zip = new ZipFile(file);
 
 			megaSenaFile = new File(tDir + "bolao.htm");
 			if (deleteOnExit) {

@@ -10,7 +10,7 @@ import br.edu.infnet.DBConfig;
 class UsuarioDAO {
 	Usuario obter(int id) {
 		ArrayList<HashMap<String, Object>> uDb = DBConfig
-				.runSql("SELECT *, date_format(creation_date, '%Y-%mm-%dd %H:%i:%s') as c_date, date_format(creation_date, '%Y-%mm-%dd %H:%i:%s') as e_date FROM usuario WHERE id = "
+				.runSql("SELECT id, email, senha, date_format(creation_date, '%Y-%m-%d %H:%i:%s') as creation_date, date_format(edit_date, '%Y-%m-%d %H:%i:%s') as edit_date FROM usuario WHERE id = "
 						+ id + ";");
 
 		if (uDb.toArray().length == 0) {
@@ -19,20 +19,23 @@ class UsuarioDAO {
 
 		HashMap<String, Object> linha = uDb.get(0);
 		Usuario usuario = new Usuario();
+
+		usuario.id = (Long) linha.get("id");
+		
 		SimpleDateFormat format_date = new SimpleDateFormat(
 				"yyyy-MM-dd hh:mm:ss");
 
-		usuario.id = (int) linha.get("id");
+		usuario.id = (Long) linha.get("id");
 
 		try {
-			usuario.creation_date = format_date.parse((String) linha.get("c_date"));
+			usuario.creation_date = linha.get("creation_date") != null ? format_date.parse((String) linha.get("creation_date")) : null;
 		} catch (ParseException e) {
 			e.printStackTrace();
 			usuario.creation_date = null;
 		}
 
 		try {
-			usuario.edit_date = format_date.parse((String) linha.get("e_date"));
+			usuario.edit_date = linha.get("e_date") != null ? format_date.parse((String) linha.get("edit_date")) : null;
 		} catch (ParseException e) {
 			e.printStackTrace();
 			usuario.edit_date = null;

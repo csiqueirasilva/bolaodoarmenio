@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Usuario {
 	protected String email, senha;
-	protected Integer id;
+	protected Long id;
 	protected Date creation_date, edit_date ;
 	
 	public Usuario(String email, String senha) {
@@ -16,7 +16,7 @@ public class Usuario {
 		;
 	}	
 
-	public int getId () {
+	public long getId () {
 		return this.id ;
 	}
 
