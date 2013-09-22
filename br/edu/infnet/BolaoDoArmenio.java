@@ -11,6 +11,9 @@ public class BolaoDoArmenio {
 			System.out.println(UsuarioDLO.carregar(1).getEmail());
 			System.out.println(UsuarioDLO.carregar(1).getSenha());
 			ConcursoDLO.carregarBaseDeConcursos("C:\\Users\\csiqueira\\Downloads\\D_megase.zip");
+			System.out.println(ConcursoDLO.listarQuantidadeNumerosPares()[3]);
+			System.out.println(ConcursoDLO.listarNumerosMaisSorteados().toString());
+			System.out.println(ConcursoDLO.listarTodos().size());
 		} catch (DLOException e) {
 			e.printStackTrace();
 		}

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipFile;
 
@@ -15,10 +16,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import br.edu.infnet.exceptions.DAOException;
 import br.edu.infnet.exceptions.DLOException;
 
 public class ConcursoDLO {
 
+	/* Dúvida se este parse deve ser feito no DAO ou no DLO */
 	private static File unzipListaResultados(File file, boolean deleteOnExit) throws DLOException {
 		File megaSenaFile = null;
 		try {
@@ -104,7 +107,40 @@ public class ConcursoDLO {
 		}
 	}
 
-	static void listarNumerosMaisSorteados()  throws DLOException {
+	public static Concurso obterConcurso (int id) throws DLOException {
+		return obterConcurso((long) id);
+	}
+	
+	public static Concurso obterConcurso (Long id) throws DLOException {
+		try {
+			return (new ConcursoDAO()).obter(id);
+		} catch (DAOException e) {
+			throw new DLOException(e);
+		}
+	}
+	
+	public static List<Concurso> listarTodos () throws DLOException {
+		try {
+			return (new ConcursoDAO()).listar() ;
+		} catch (DAOException e) {
+			throw new DLOException(e);
+		}
+	}
+
+	public static int[] listarQuantidadeNumerosPares()  throws DLOException {
+		try {
+			return (new ConcursoDAO()).listarQuantidadeNumerosPares() ;
+		} catch (DAOException e) {
+			throw new DLOException(e);
+		}
+	}
+	
+	public static HashMap<Short,Long> listarNumerosMaisSorteados()  throws DLOException {
+		try {
+			return (new ConcursoDAO()).listarNumerosMaisSorteados() ;
+		} catch (DAOException e) {
+			throw new DLOException(e);
+		}
 	}
 
 	public static void carregarBaseDeConcursos(String nome_arquivo) throws DLOException {

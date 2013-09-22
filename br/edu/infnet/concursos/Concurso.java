@@ -4,10 +4,12 @@ import java.util.Date;
 import java.util.List;
 
 public class Concurso {
-	private int codigoIdentificador;
-	private Date dataSorteio;
-	private List<Integer> numerosSorteio;
-	private double valorSorteado;
+	int codigoIdentificador;
+	Date dataSorteio;
+	List<Integer> numerosSorteio;
+	double valorSorteado;
+	Long id;
+	Date editDate, creationDate;
 	
 	public void setValorSorteado(double valor) {
 		this.valorSorteado = valor;
