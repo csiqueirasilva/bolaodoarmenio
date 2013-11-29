@@ -13,11 +13,12 @@ import java.util.Date;
 import java.util.HashMap;
 
 public final class DBConfig {
-	private static final String DB_USER = "root";
-	private static final String DB_PASS = "P@ssw0rd";
-	private static final String DB_ADDR = "hawaii-ocean.dyndns.tv";
+        public static final String DATE_PARSE_STRING = "YYYY-MM-dd HH:mm:ss.SSS";
+	private static final String DB_USER = "postgres";
+	private static final String DB_PASS = "poipoi09";
+	private static final String DB_ADDR = "localhost";
 	private static final String DB_NAME = "bolaodoarmenio";
-	private static final int DB_PORT = 3306;
+	private static final int DB_PORT = 5432;
 	private static Connection conn = null;
 	private static Statement stm = null;
 
@@ -27,10 +28,11 @@ public final class DBConfig {
 	private static void init() throws SQLException {
 		if (conn == null) {
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
+				Class.forName("org.postgresql.Driver");
 			} catch (ClassNotFoundException e) {
+                            throw new SQLException(e);
 			}
-			conn = DriverManager.getConnection("jdbc:mysql://" + DB_ADDR + ":"
+			conn = DriverManager.getConnection("jdbc:postgresql://" + DB_ADDR + ":"
 					+ DB_PORT + "/" + DB_NAME, DB_USER, DB_PASS);
 		}
 	}
@@ -92,14 +94,22 @@ public final class DBConfig {
 									rs.getString(i)) : null;
 							break;
 						case java.sql.Types.TIMESTAMP:
-							colvalue = rs.getString(i) != "0000-00-00 00:00:00" ? rs
-									.getString(i) : null;
+							colvalue = rs.getTimestamp(i);
 							break;
 						case java.sql.Types.DATE:
 							colvalue = rs.getDate(i) != null ? rs.getDate(i)
 									.clone() : null;
 							break;
-						case java.sql.Types.CHAR:
+                                                case java.sql.Types.DOUBLE:
+                                                        colvalue = new Double(rs.getDouble(i));
+							break;
+                                                case java.sql.Types.INTEGER:
+                                                        colvalue = new Integer(rs.getInt(i));
+							break;
+                                                case java.sql.Types.FLOAT:
+                                                        colvalue = new Float(rs.getFloat(i));
+							break;    
+                                                case java.sql.Types.CHAR:
 						default:
 							colvalue = rs.getObject(i);
 						}
@@ -117,24 +127,27 @@ public final class DBConfig {
 
 	private static void readArgsPreparedStatement(String sql, Object... args)
 			throws SQLException {
-		for (int i = 0; i < args.length; i++) {
+		
+                for (int i = 0; i < args.length; i++) {
 			PreparedStatement pstm = (PreparedStatement) stm;
 			if (args[i] instanceof String) {
-				pstm.setString(i + 1, (String) args[i]);
+                            pstm.setString(i + 1, (String) args[i]);
 			} else if (args[i] instanceof Date) {
-				pstm.setTimestamp(i + 1,
-						new Timestamp(((Date) args[i]).getTime()));
-			} else if (args[i] instanceof Integer) {
-				pstm.setInt(i + 1, (int) args[i]);
+                            pstm.setTimestamp(i + 1,
+                                            new Timestamp(((Date) args[i]).getTime()));
+ 			} else if (args[i] instanceof Integer) {
+                            pstm.setInt(i + 1, (Integer) args[i]);
 			} else if (args[i] instanceof Double) {
-				pstm.setDouble(i + 1, (double) args[i]);
+                            pstm.setDouble(i + 1, (Double) args[i]);
 			} else if (args[i] instanceof Float) {
-				pstm.setFloat(i + 1, (float) args[i]);
+                            pstm.setFloat(i + 1, (Float) args[i]);
 			} else if (args[i] instanceof Long) {
-				pstm.setLong(i + 1, (long) args[i]);
+                            pstm.setLong(i + 1, (Long) args[i]);
 			} else if (args[i] instanceof Short) {
-				pstm.setShort(i + 1, (short) args[i]);
-			}
+                            pstm.setShort(i + 1, (Short) args[i]);
+			} else if (args[i] == null) {
+                            pstm.setObject(i + 1, null);
+                        }
 		}
 	}
 

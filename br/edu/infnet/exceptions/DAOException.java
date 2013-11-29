@@ -2,6 +2,8 @@ package br.edu.infnet.exceptions;
 
 public class DAOException extends Exception {
 
+	private static final long serialVersionUID = 3L;
+
 	public DAOException() {
 	}
 

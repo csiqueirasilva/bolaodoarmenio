@@ -18,148 +18,223 @@ import org.jsoup.select.Elements;
 
 import br.edu.infnet.exceptions.DAOException;
 import br.edu.infnet.exceptions.DLOException;
+import br.edu.infnet.jogos.BolaoDLO;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ConcursoDLO {
 
-	/* D�vida se este parse deve ser feito no DAO ou no DLO */
-	private static File unzipListaResultados(File file, boolean deleteOnExit) throws DLOException {
-		File megaSenaFile = null;
-		try {
-			String tDir = System.getProperty("java.io.tmpdir");
-			ZipFile zip = new ZipFile(file);
+    public static short QTD_NUMEROS_POR_CONCURSO = 6;
+    static String WEB_SRC_LISTA_CONCURSOS = "http://localhost:8080/D_megase.zip";
 
-			megaSenaFile = new File(tDir + "bolao.htm");
-			if (deleteOnExit) {
-				megaSenaFile.deleteOnExit();
-			}
-			InputStream zis = zip.getInputStream(zip.getEntry("D_MEGA.HTM"));
+    /* Dúvida se este parse deve ser feito no DAO ou no DLO 
+     * Resp: No DAO. Pois está buscando uma fonte de dados dos concursos. */
+    private static File unzipListaResultados(File file, boolean deleteOnExit) throws DLOException {
+        File megaSenaFile = null;
+        try {
+            String tDir = System.getProperty("java.io.tmpdir");
+            ZipFile zip = new ZipFile(file);
 
-			byte[] buffer = new byte[2048];
-			OutputStream os = null;
-			os = new FileOutputStream(megaSenaFile);
+            megaSenaFile = new File(tDir + "bolao.htm");
+            if (deleteOnExit) {
+                megaSenaFile.deleteOnExit();
+            }
+            InputStream zis = zip.getInputStream(zip.getEntry("D_MEGA.HTM"));
 
-			int len = 0;
-			while ((len = zis.read(buffer)) > 0) {
-				os.write(buffer, 0, len);
-			}
+            byte[] buffer = new byte[2048];
+            OutputStream os = null;
+            os = new FileOutputStream(megaSenaFile);
 
-			os.flush();
-			os.close();
-			zis.close();
-			zip.close();
-		} catch (Exception e) {
-			throw new DLOException(e);
-		}
-		return megaSenaFile;
-	}
+            int len = 0;
+            while ((len = zis.read(buffer)) > 0) {
+                os.write(buffer, 0, len);
+            }
 
-	private static File downloadListaResultados() throws DLOException {
-		File megaSenaFile = null;
-		try {
-			URL url = new URL("http://hawaii-ocean.dyndns.tv/D_megase.zip");
-			String tDir = System.getProperty("java.io.tmpdir");
-			String path = tDir + "base_bolao_do_armenio.zip";
-			megaSenaFile = new File(path);
-			megaSenaFile.deleteOnExit();
+            os.flush();
+            os.close();
+            zis.close();
+            zip.close();
+        } catch (Exception e) {
+            throw new DLOException(e);
+        }
+        return megaSenaFile;
+    }
 
-			FileUtils.copyURLToFile(url, megaSenaFile);
+    private static File downloadListaResultados() throws DLOException {
+        File megaSenaFile = null;
+        try {
+            URL url = new URL(WEB_SRC_LISTA_CONCURSOS);
+            String tDir = System.getProperty("java.io.tmpdir");
+            String path = tDir + "base_bolao_do_armenio.zip";
+            megaSenaFile = new File(path);
+            megaSenaFile.deleteOnExit();
 
-		} catch (Exception e) {
-			throw new DLOException(e);
-		}
-		return megaSenaFile;
-	}
+            FileUtils.copyURLToFile(url, megaSenaFile);
 
-	private static void parseHTMLMegaSena(File megaSenaFile) throws DLOException {
-		if (megaSenaFile != null) {
+        } catch (Exception e) {
+            throw new DLOException(e);
+        }
+        return megaSenaFile;
+    }
 
-			Document doc = null;
-			try {
-				doc = Jsoup.parse(megaSenaFile, "UTF-8");
+    private static Concurso parseLineHTML(Elements tds) throws ParseException {
 
-				Elements linhasSorteio = doc.select("table tbody tr");
-				List<Concurso> listaConcursos = new ArrayList<Concurso>();
-				SimpleDateFormat dtFormat = new SimpleDateFormat("DD/MM/YYYY");
+        Concurso conc = new Concurso();
+        SimpleDateFormat dtFormat = new SimpleDateFormat("d/M/y");
 
-				ConcursoDAO c = new ConcursoDAO();
-				long qtdRegistrosDb = c.contarRegistros();
+        conc.setCodigoIdentificador(Integer.parseInt(tds.get(0)
+                .text()));
+        conc.setDataSorteio(dtFormat.parse(tds.get(1).text()));
+        List<Integer> listaNumeros = new ArrayList<Integer>();
+        for (int j = 2; j < 8; j++) {
+            listaNumeros.add(new Integer(tds.get(j).text()));
+        }
+        conc.setNumerosSorteio(listaNumeros);
+        conc.setValorSorteado((float) 10000000.0);
 
-				for (long i = qtdRegistrosDb + 1; i < linhasSorteio.size(); i++) {
-					Elements tds = linhasSorteio.get((int) i).select("td");
-					Concurso conc = new Concurso();
-					conc.setCodigoIdentificador(Integer.parseInt(tds.get(0)
-							.text()));
-					conc.setDataSorteio(dtFormat.parse(tds.get(1).text()));
-					List<Integer> listaNumeros = new ArrayList<Integer>();
-					for (int j = 2; j < 8; j++) {
-						listaNumeros.add(new Integer(tds.get(j).text()));
-					}
-					conc.setNumerosSorteio(listaNumeros);
-					conc.setValorSorteado(10000000.0);
-					listaConcursos.add(conc);
-				}
-				if (listaConcursos.size() > 0) {
-					c.carregarRegistros(listaConcursos);
-				}
-			} catch (Exception e) {
-				throw new DLOException(e);
-			}
-		}
-	}
+        return conc;
+    }
 
-	public static Concurso obterConcurso (int id) throws DLOException {
-		return obterConcurso((long) id);
-	}
-	
-	public static Concurso obterConcurso (Long id) throws DLOException {
-		try {
-			return (new ConcursoDAO()).obter(id);
-		} catch (DAOException e) {
-			throw new DLOException(e);
-		}
-	}
-	
-	public static List<Concurso> listarTodos () throws DLOException {
-		try {
-			return (new ConcursoDAO()).listar() ;
-		} catch (DAOException e) {
-			throw new DLOException(e);
-		}
-	}
+    private static void parseHTMLMegaSena(File megaSenaFile) throws DLOException {
+        if (megaSenaFile != null) {
 
-	public static int[] listarQuantidadeNumerosPares()  throws DLOException {
-		try {
-			return (new ConcursoDAO()).listarQuantidadeNumerosPares() ;
-		} catch (DAOException e) {
-			throw new DLOException(e);
-		}
-	}
-	
-	public static HashMap<Short,Long> listarNumerosMaisSorteados()  throws DLOException {
-		try {
-			return (new ConcursoDAO()).listarNumerosMaisSorteados() ;
-		} catch (DAOException e) {
-			throw new DLOException(e);
-		}
-	}
+            Document doc = null;
+            try {
+                doc = Jsoup.parse(megaSenaFile, "UTF-8");
 
-	public static void carregarBaseDeConcursos(String nome_arquivo) throws DLOException {
-		if (nome_arquivo != null) {
-			carregarBaseDeConcursos(new File(nome_arquivo));
-		}
-	}
+                Elements linhasSorteio = doc.select("table tbody tr");
+                List<Concurso> listaConcursos = new ArrayList<Concurso>();
 
-	public static void carregarBaseDeConcursos(File arquivoLocal) throws DLOException {
-		if (arquivoLocal != null) {
-			File megaSenaFile = unzipListaResultados(arquivoLocal, false);
-			parseHTMLMegaSena(megaSenaFile);
-		}
-	}
+                ConcursoDAO c = new ConcursoDAO();
+                long qtdRegistrosDb = c.contarRegistros();
 
-	public static void carregarBaseDeConcursos() throws DLOException {
-		File zipMegaSena = downloadListaResultados();
-		File megaSenaFile = unzipListaResultados(zipMegaSena, true);
-		parseHTMLMegaSena(megaSenaFile);
-	}
+                // O primeiro índice é o header da tabela
+                if (qtdRegistrosDb < linhasSorteio.size()) {
+                    Elements tds = linhasSorteio.get((int) qtdRegistrosDb).select("td");
+                    c.atualizar(parseLineHTML(tds));
+                    for (long i = qtdRegistrosDb + 1; i < linhasSorteio.size(); i++) {
+                        tds = linhasSorteio.get((int) i).select("td");
+                        listaConcursos.add(parseLineHTML(tds));
+                    }
 
+                    Concurso conc = new Concurso();
+                    List<Integer> listaNumeros = new ArrayList<Integer>();
+                    for (int j = 2; j < 8; j++) {
+                        listaNumeros.add(null);
+                    }
+
+                    conc.setCodigoIdentificador(null);
+                    conc.setValorSorteado(null);
+                    conc.setDataSorteio(dataProximoSorteio());
+                    conc.setNumerosSorteio(listaNumeros);
+                    listaConcursos.add(conc);
+
+                    c.carregarRegistros(listaConcursos);
+                }
+
+            } catch (Exception e) {
+                throw new DLOException(e);
+            }
+        }
+    }
+
+    public static HashMap<Long, Long> contarAcertos() throws DLOException {
+        try {
+            return (new ConcursoDAO()).contarAcertos();
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+    
+    public static Concurso obterProximoConcurso() throws DLOException {
+        try {
+            return (new ConcursoDAO()).obter();
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+
+    public static Concurso obterConcurso(int id) throws DLOException {
+        return obterConcurso((long) id);
+    }
+
+    public static Concurso obterConcurso(Long id) throws DLOException {
+        try {
+            return (new ConcursoDAO()).obter(id);
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+
+    public static List<Concurso> listarTodos() throws DLOException {
+        try {
+            return (new ConcursoDAO()).listar();
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+
+    public static int[] listarQuantidadeNumerosPares() throws DLOException {
+        try {
+            return (new ConcursoDAO()).listarQuantidadeNumerosPares();
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+
+    public static HashMap<Short, Long> listarNumerosMaisSorteados() throws DLOException {
+        try {
+            return (new ConcursoDAO()).listarNumerosMaisSorteados();
+        } catch (DAOException e) {
+            throw new DLOException(e);
+        }
+    }
+
+    public static void carregarBaseDeConcursos(String nome_arquivo) throws DLOException {
+        if (nome_arquivo != null) {
+            carregarBaseDeConcursos(new File(nome_arquivo));
+        }
+    }
+
+    public static void carregarBaseDeConcursos(File arquivoLocal) throws DLOException {
+        if (arquivoLocal != null) {
+            File megaSenaFile = unzipListaResultados(arquivoLocal, false);
+            parseHTMLMegaSena(megaSenaFile);
+            BolaoDLO.transferirSaldoBolaoParaGrupo();
+        }
+    }
+
+    public static void carregarBaseDeConcursos() throws DLOException {
+        File zipMegaSena = downloadListaResultados();
+        File megaSenaFile = unzipListaResultados(zipMegaSena, true);
+        parseHTMLMegaSena(megaSenaFile);
+        BolaoDLO.transferirSaldoBolaoParaGrupo();
+    }
+
+    public static Date dataProximoSorteio() {
+        Calendar now = Calendar.getInstance();
+        int weekday = now.get(Calendar.DAY_OF_WEEK);
+
+        int days;
+        if (weekday > Calendar.WEDNESDAY && weekday < Calendar.SATURDAY) {
+            days = Calendar.SATURDAY - weekday;
+        } else {
+            days = Math.abs(Calendar.WEDNESDAY - weekday);
+        }
+
+        now.add(Calendar.DAY_OF_YEAR, days);
+
+        return now.getTime();
+    }
+
+    public static boolean verificarJanelaCriacaoBolao(Concurso concurso) {
+            Calendar now = Calendar.getInstance();
+            Calendar dataConcurso = new GregorianCalendar();
+            
+            dataConcurso.setTime(concurso.getDataSorteio());
+            
+            return !dataConcurso.equals(now) && !dataConcurso.before(now);
+    }
 }

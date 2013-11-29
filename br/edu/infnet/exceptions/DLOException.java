@@ -2,6 +2,8 @@ package br.edu.infnet.exceptions;
 
 public class DLOException extends Exception {
 
+	private static final long serialVersionUID = 4L;
+
 	public DLOException() {
 	}
 

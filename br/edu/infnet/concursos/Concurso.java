@@ -1,21 +1,32 @@
 package br.edu.infnet.concursos;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Concurso {
-	int codigoIdentificador;
+public class Concurso implements Serializable  {
+	private static final long serialVersionUID = 1L;
+
+	Integer codigoIdentificador;
 	Date dataSorteio;
 	List<Integer> numerosSorteio;
-	double valorSorteado;
+	Float valorSorteado;
 	Long id;
 	Date editDate, creationDate;
-	
-	public void setValorSorteado(double valor) {
+
+        public Long getId() {
+            return this.id;
+        }        
+        
+        public void setId(Long id) {
+            this.id = id;
+        }
+        
+        public void setValorSorteado(Float valor) {
 		this.valorSorteado = valor;
 	}
 	
-	public void setCodigoIdentificador(int cod) {
+	public void setCodigoIdentificador(Integer cod) {
 		this.codigoIdentificador = cod;
 	}
 
@@ -37,7 +48,7 @@ public class Concurso {
 		return this.numerosSorteio;
 	}
 
-	public int getCodigoIdentificador() {
+	public Integer getCodigoIdentificador() {
 		return this.codigoIdentificador;
 	}
 
@@ -45,7 +56,7 @@ public class Concurso {
 		return this.dataSorteio;
 	}
 	
-	public double getValorSorteado() {
+	public Float getValorSorteado() {
 		return this.valorSorteado;
 	}	
 }

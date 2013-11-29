@@ -1,0 +1,147 @@
+#menu div a {
+    display: block;
+}
+
+#menu {
+    overflow: auto;
+    width: 16%;
+    max-height: 800px;
+    float: left;
+}
+
+.hidden {
+    display: none;
+}
+
+#content {
+    float: right;
+    width: 78%;
+    padding-left: 20px;
+}
+
+#login_form input[type='text'], #login_form input[type='password'] {
+	display: block;
+        width: 180px;
+}
+
+.ipt_erro {
+    color: #FF0000;
+    border: solid 1px #FF0000;
+}
+
+body {
+    background: url('../img/bg.png') repeat;
+    font-family: Tahoma;
+    font-size: 11px;
+}
+
+body #principal {
+    margin: 0 auto;
+    width: 70%;
+    background-color: rgba(255,255,255,0.9);
+    min-height: 50%;
+    border: 1px solid rgba(0,0,0,0.6);
+    margin-top: 10px;
+    padding: 20px;
+}
+
+body #header {
+    margin: 0 auto;
+    width: 70%;
+    background-color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.6);
+    padding: 20px;
+}
+
+#buttons_login input {
+    display: inline;
+}
+
+#header img, #header h2 {
+    display: inline;
+}
+
+#header img {
+    width: 100px;
+}
+
+#header h2 {
+    font-size: 50px;
+}
+
+#icon_email_error {
+    border: 0px;
+}
+
+#cadastro_form input {
+    display: block;
+}
+
+button, input[type="submit"] {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#linkhome {
+    color: #000000;
+    text-decoration: none;
+}
+
+.grupos {
+    border: 1px solid #000000;
+}
+
+.grupos thead tr {
+    color: #FFFFFF;
+    background-color: #000000;
+}
+
+.grupos tbody tr:hover {
+    background-color: #DDDDDD;
+}
+
+th,td {
+    padding: 4px;
+    min-width: 100px;
+    text-align: center;
+}
+
+#canhoto-mega-senha {
+    width: 450px;
+}
+
+#canhoto-mega-sena tr td {
+    min-width: 20px;
+    padding: 2px;
+}
+
+.toggle-numero-canhoto {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+#canhoto-mega-sena tr td:hover {
+    cursor: pointer;
+}
+
+#canhoto-lista-numeros {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+    width: 450px;
+}
+
+#canhoto-lista-numeros li {
+    margin: 3px 3px 3px 0;
+    padding: 1px;
+    float: left; 
+    width: 56px;
+    font-size: 2em;
+    height: 32px; 
+    text-align: center; 
+}

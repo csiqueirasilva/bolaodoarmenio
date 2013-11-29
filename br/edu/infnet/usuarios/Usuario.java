@@ -16,6 +16,10 @@ public class Usuario {
 		;
 	}	
 
+        public void setId (Long id) {
+            this.id = id;
+        }
+        
 	public long getId () {
 		return this.id ;
 	}
