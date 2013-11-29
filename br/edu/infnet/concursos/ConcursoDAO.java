@@ -9,6 +9,8 @@ import java.util.List;
 
 import br.edu.infnet.DBConfig;
 import br.edu.infnet.exceptions.DAOException;
+import java.util.Map;
+import java.util.TreeMap;
 
 class ConcursoDAO {
 
@@ -86,9 +88,9 @@ class ConcursoDAO {
 
     }
 
-    HashMap<Short, Long> listarNumerosMaisSorteados() throws DAOException {
+    TreeMap<Short, Long> listarNumerosMaisSorteados() throws DAOException {
         try {
-            HashMap<Short, Long> list = new HashMap<Short, Long>();
+            TreeMap<Short, Long> list = new TreeMap<Short, Long>();
 
             List<HashMap<String, Object>> results = DBConfig.runSql("select count(1) as quantidade, numero "
                     + "from vw_nums_concurso AS numeros "

@@ -14,9 +14,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -88,57 +90,90 @@ public class ApostaDLO {
 
             inseriu = apostas.add(aposta);
             if (!inseriu && numeros.size() > 0) {
-                numeros.remove(numeros.size()-1);
+                numeros.remove(numeros.size() - 1);
             }
         } while (!inseriu);
-        
+
         return aposta;
     }
 
-    private static List<Short> numerosEstatisticos () {
+    private static List<Short> numerosEstatisticos() {
         List<Short> numerosEstatisticos = null;
         try {
             Map<Short, Long> maisSorteados = ConcursoDLO.listarNumerosMaisSorteados();
             int[] pares = ConcursoDLO.listarQuantidadeNumerosPares();
             numerosEstatisticos = new ArrayList<Short>();
             
-            Arrays.sort(pares);
-            int maxIdx = pares.length - 1;
-            int qtdPar = pares[maxIdx];
+            int maxIdx = 0;
+            for(int i = 1; i < pares.length; i++) {
+                if(pares[maxIdx] < pares[i]) {
+                    maxIdx = i;
+                }
+            }
+
+            int qtdPar = maxIdx;
             int qtdImpar = ConcursoDLO.QTD_NUMEROS_POR_CONCURSO - qtdPar;
-            TreeMap<Short, Long> maisSorteadosOrdenados = new TreeMap<Short, Long>(maisSorteados);
-            
-            
-            System.out.println(maisSorteadosOrdenados);
-            
-//            while(maisSorteados.size() != 0) {
-//                for(int i = 0; i < maisSorteados.size() && i < qtdPar; i++) {
-//                    if(maisSorteados.get(i)%2 == 0) {
-//
-//                    }
-//                }
-//                
-//                for(int i = 0; i < maisSorteados.size() && i < qtdImpar; i++) {
-//                    
-//                }
-//            }
-            
+
+            List<Short> sortedMaisSorteados = new ArrayList<Short>();
+
+            int qtdSorteados = maisSorteados.values().size();
+            while (qtdSorteados != sortedMaisSorteados.size()) {
+                Long max = Collections.max(maisSorteados.values());
+                Set<Short> keys = maisSorteados.keySet();
+                Iterator<Short> it = keys.iterator();
+                Short num = it.next();
+                for (; it.hasNext() && maisSorteados.get(num) != max; num = it.next()) {
+                    ;
+                }
+                sortedMaisSorteados.add(num);
+                maisSorteados.remove(num);
+            }
+
+            while (numerosEstatisticos.size() != qtdSorteados) {
+                int i = 0;
+                List<Short> itList = new ArrayList<Short>(sortedMaisSorteados);
+                Iterator<Short> it = itList.iterator();
+                Short num;
+                for (; it.hasNext() && i < qtdPar;) {
+                    num = it.next();
+                    if (num % 2 == 0) {
+                        numerosEstatisticos.add(num);
+                        sortedMaisSorteados.remove(num);
+                        i++;
+                    }
+                }
+
+                i = 0;
+                itList = new ArrayList<Short>(sortedMaisSorteados);
+                it = itList.iterator();
+                for (; it.hasNext() && i < qtdImpar;) {
+                    num = it.next();
+                    if (num % 2 != 0) {
+                        numerosEstatisticos.add(num);
+                        sortedMaisSorteados.remove(num);
+                        i++;
+                    }
+                }
+            }
+
         } catch (DLOException ex) {
             Logger.getLogger(ApostaDLO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return numerosEstatisticos;
     }
-    
+
     private static TreeSet<Aposta> adicionarApostas(TreeSet<Aposta> apostas, List<Short> numerosPreferenciais, int tipo, int qtd, int qtdNumeros) {
         TreeSet<Aposta> apostasNovas = new TreeSet<Aposta>(new ComparadorAposta());
         List<Short> numerosEstatisticos = numerosEstatisticos();
         for (int i = 0; i < qtd; i++) {
+            Aposta apostaNova ;
             if (Aposta.TIPO_ESTATISTICA == tipo) {
-                adicionarAposta(apostas, tipo, numerosEstatisticos, qtdNumeros);
+                apostaNova = adicionarAposta(apostas, tipo, numerosEstatisticos, qtdNumeros);
             } else /* Aposta.TIPO_MANUAL == tipo || Aposta.TIPO_RANDOMICA == tipo */ {
-                adicionarAposta(apostas, tipo, numerosPreferenciais, qtdNumeros);
+                apostaNova = adicionarAposta(apostas, tipo, numerosPreferenciais, qtdNumeros);
             }
+            apostasNovas.add(apostaNova);
         }
         return apostasNovas;
     }
@@ -159,7 +194,7 @@ public class ApostaDLO {
             } catch (DAOException e) {
                 throw new DLOException(e);
             }
-            
+
             int[] listaQuantidade = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
             int totalDeApostas = 0;
 
@@ -226,6 +261,7 @@ public class ApostaDLO {
                 qtds.add(new QuantidadeAposta(qtdManual.intValue(), Aposta.TIPO_MANUAL));
             }
 
+            apostasNovas = new TreeSet<Aposta>(new ComparadorAposta());
             for (int i = listaQuantidade.length - 1; i >= 0 && qtds.size() > 0; i--) {
                 if (listaQuantidade[i] != 0) {
                     int qtdApostaEspecifica;
@@ -243,8 +279,12 @@ public class ApostaDLO {
                         listaQuantidade[i] = 0;
                     }
 
-                    apostasNovas = adicionarApostas(apostas, numeros, maiorQtd.tipo, qtdApostaEspecifica, qtdNumeros);
-
+                    TreeSet<Aposta> apostasAdicionadas = adicionarApostas(apostas, numeros, maiorQtd.tipo, qtdApostaEspecifica, qtdNumeros);
+                    for(Iterator<Aposta> it = apostasAdicionadas.iterator(); it.hasNext(); ) {
+                        Aposta ap = it.next();
+                        apostasNovas.add(ap);
+                    }
+                    
                     if (maiorQtd.qtd != 0) {
                         qtds.add(maiorQtd);
                     }

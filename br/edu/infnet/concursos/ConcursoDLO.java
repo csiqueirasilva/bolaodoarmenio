@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TreeMap;
 
 public class ConcursoDLO {
 
@@ -184,7 +185,7 @@ public class ConcursoDLO {
         }
     }
 
-    public static HashMap<Short, Long> listarNumerosMaisSorteados() throws DLOException {
+    public static TreeMap<Short, Long> listarNumerosMaisSorteados() throws DLOException {
         try {
             return (new ConcursoDAO()).listarNumerosMaisSorteados();
         } catch (DAOException e) {

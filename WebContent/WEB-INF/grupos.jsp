@@ -27,7 +27,7 @@
                 <c:forEach var="grupo" items="${adminGrupos}">
                     <tr>
                         <td><a value="/grupo?id=${grupo.id}">${grupo.nome}</a></td>
-                        <td>${grupo.saldo}</td>
+                        <td><fmt:formatNumber value="${grupo.saldo}" type="currency" /></td>
                     </tr>
                 </c:forEach>
                     </tbody>
