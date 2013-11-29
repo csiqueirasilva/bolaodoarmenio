@@ -242,9 +242,6 @@ public class ApostaDLO {
 
             TreeSet<QuantidadeAposta> qtds = new TreeSet<QuantidadeAposta>(new Comparator<QuantidadeAposta>() {
                 public int compare(QuantidadeAposta o1, QuantidadeAposta o2) {
-                    if (o1.qtd == o2.qtd) {
-                        return 0;
-                    }
                     return o1.qtd > o2.qtd ? 1 : -1;
                 }
             });
