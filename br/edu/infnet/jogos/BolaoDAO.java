@@ -113,7 +113,7 @@ class BolaoDAO {
             ArrayList<HashMap<String, Object>> results = DBConfig
                     .runPreparedSql("SELECT bolao.id, bolao.id_concurso, bolao.id_grupo, bolao.valor_depositado "
                     + "FROM bolao, concurso "
-                    + "AND bolao.id_concurso = concurso.id "
+                    + "WHERE bolao.id_concurso = concurso.id "
                     + "AND concurso.codigo_identificador IS NOT NULL "
                     + "AND valor_depositado <> 0;");
 

@@ -1,0 +1,4 @@
+(Pt-Br; This system doesn't make sense in other country than Brazil.)
+
+Para instalar o banco do sistema, execute primeiro o sql bolaodoarmenio.sql e depois install.sql.
+O sistema foi desenvolvido usando Postgres 9.1 e foi hospedado no Tomcat 7.
